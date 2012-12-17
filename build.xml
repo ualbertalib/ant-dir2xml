@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="build" name="ant-dir2xml">
+
+   <target name="build" description="build ant-dir2xml class">
+      <mkdir dir="bin"/>
+      <echo>${ant.library.dir}</echo>
+      <javac srcdir="./src" destdir="./bin" debug="on" includeantruntime="false">
+         <include name="**/*.java"/>
+         <classpath path="${java.class.path}"/>
+      </javac>
+   </target>
+   <target name="buildjar" depends="build" description="create jar">
+      <mkdir dir="build"/>
+      <jar destfile="build/ant-dir2xml.jar" basedir="./bin" includes="**/*.class"/>
+   </target>
+
+   <target name="dir2xml.check">
+      <condition property="dir2xml.go">
+         <and>
+            <isset property="dir"/>
+            <isset property="output"/>
+         </and>
+      </condition>
+      <fail unless="dir2xml.go">Required parameters: dir and output. E.g.: ant -Doutput=test.xml -Ddir=. run</fail>
+   </target>
+   
+   <target name="run" depends="dir2xml.check" if="dir2xml.go" description="generate xml listing of directory contents">
+      <!-- required params: dir and output; optional params: md5, dimensions, depth -->
+      <taskdef name="dir2xml" classname="ca.ualberta.library.digital.dir2xml.Dir2xml" classpath="build/ant-dir2xml.jar:${java.class.path}"/>
+      <property name="md5" value="false"/>
+      <property name="dimensions" value="false"/>
+      <property name="depth" value="10"/>
+      <echo>dir2xml:
+         Creating listing of ${dir} in ${output}
+         Options: md5: ${md5}; dimensions: ${dimensions}; depth: ${depth}
+      </echo>
+      <dir2xml dirpath="${dir}" file="${output}" md5="${md5}"
+         depth="${depth}" dimensions="${dimensions}"/>
+   </target>
+   
+</project>
